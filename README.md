@@ -1,1 +1,1 @@
-# friend-tracker
+I wanted to play around with Chrome Extensions and web scraping, so I built this little extension that scrapes my Facebook friend list and tracks how many I have compared to the last time I checked. It will print new friends I've gained and lost friends as well.
