@@ -7,6 +7,25 @@
 	    <script type="text/javascript" src="popup.js"></script>
 	</head>
 	<body>
+		<div>
+			<span>Previously counted friends: </span>
+			<span id="previous-friends"></span>
+		</div>
+		<div>
+			<span>Current friends: </span>
+			<span id="current-friends"></span>
+		</div>
+		<div visibility="none">
+			<div>
+				<span>Gained Friends:</span>
+				<span id="gained-friends"></span>
+			</div>
+			<div>
+				<span>Lost Friends:</span>
+				<span id="lost-friends"></span>
+			</div>
+		</div>
 		<button id="get-friends">Get friends</button>
+		<button id="cache-friends">Cache friends</button>
 	</body>
 </html>

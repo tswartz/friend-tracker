@@ -1,7 +1,16 @@
-if (!localStorage.getItem("friends")) {
-	localStorage.setItem("friends", []);
+
+var cachedFriends;
+var friends;
+
+function initializeFriends() {
+	if (!localStorage.getItem("friends")) {
+		localStorage.setItem("friends", []);
+	}
+	cachedFriends = localStorage.getItem("friends").split(",");
+	friends = [];
+
+	setText('previous-friends', cachedFriends.length);	
 }
-var cachedFriends = localStorage.getItem("friends").split(",");
 
 
 function sendRequest() {
@@ -15,12 +24,27 @@ function sendRequest() {
 }
 
 function trackFriends(response) {
-	var friends = response.friends;
-	var newFriends = _.difference(friends, cachedFriends);
+	friends = response.friends;
+	var gainedFriends = _.difference(friends, cachedFriends);
 	var lostFriends = _.difference(cachedFriends, friends);
-	console.log(newFriends, lostFriends);
+	setText('current-friends', friends.length);
+	setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
+	setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
+}
+
+function setText(id, text) {
+	document.getElementById(id).innerText = text;
+}
+
+function cacheFriends() {
+	if (friends.length > 0) {
+		localStorage.setItem("friends", friends);
+		initializeFriends();
+	}
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+	initializeFriends();
   	document.getElementById('get-friends').addEventListener('click', sendRequest);
+  	document.getElementById('cache-friends').addEventListener('click', cacheFriends);
 });
