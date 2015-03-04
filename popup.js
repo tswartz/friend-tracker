@@ -30,6 +30,7 @@ function trackFriends(response) {
 	setText('current-friends', friends.length);
 	setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
 	setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
+	document.getElementById('cache-friends').removeAttribute("disabled");
 }
 
 function setText(id, text) {
