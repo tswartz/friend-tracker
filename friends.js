@@ -10,12 +10,7 @@ function scrapeFriends() {
 
 function getAllFriends(callback) {
 	var screenHeight = $(window).height();
-
-	// get total friend count
-	var friendsTotalSpan = $("a[data-tab-key='friends'] span._gs6");
-	var friendsTotal = parseInt(friendsTotalSpan.text());
 	var friends = [];
-
 	var loop = setInterval(function () {
 		scrollTo(0,screenHeight);
 		friends = scrapeFriends();

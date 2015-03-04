@@ -17,8 +17,8 @@ function sendRequest() {
   	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 	    var tab = tabs[0];
 	    var port = chrome.tabs.connect(tabs[0].id);
-		port.postMessage({counter: 1});
-		port.onMessage.addListener(trackFriends);
+	    port.onMessage.addListener(trackFriends);
+		port.postMessage();
 	});
 
 }
