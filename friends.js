@@ -20,7 +20,7 @@ function getAllFriends(callback) {
 		scrollTo(0,screenHeight);
 		friends = scrapeFriends();
 		screenHeight += screenHeight;
-		moreAboutHeader = $("h3.uiHeaderTitle:contains('More About Talia Swartz')");
+		moreAboutHeader = $("h3.uiHeaderTitle:contains('More About ')");
 		if (moreAboutHeader.length > 0) {
 			clearInterval(loop);
 			callback(friends);
