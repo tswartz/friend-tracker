@@ -39,6 +39,7 @@ function getAllFriends(callback) {
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
   	getAllFriends(function (friendData) {
+  		friendData.initialize = msg.initialize;
   		port.postMessage(friendData);
   	});
   });

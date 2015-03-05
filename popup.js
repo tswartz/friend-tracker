@@ -5,15 +5,23 @@ var currentUser;
 
 function initializeFriends() {
 	if (!localStorage.getItem(currentUser)) {
-		localStorage.setItem(currentUser, "{}");
+		document.getElementById("previous-friends-data").className = "hidden";
+		document.getElementById("current-friends-data").className = "hidden";
+		document.getElementById("cache-friends").setAttribute("disabled", "true");
+		var friendData = {friends:[], friendCount:0};
+		friendData = JSON.stringify(friendData);
+		localStorage.setItem(currentUser, friendData);
+	} else {
+		retrieveCachedFriends();
 	}
-	if (!localStorageGet("friends") && !localStorageGet("friendCount")) {
-		localStorageSet("friends", []);
-		localStorageSet("friendCount", 0);
-	}
-	cachedFriends = localStorageGet("friends");
-	cachedFriendCount = localStorageGet("friendCount");
+}
 
+function retrieveCachedFriends() {
+	cachedFriends = localStorageGet("friends");
+	var cachedFriendCount = localStorageGet("friendCount");
+
+	document.getElementById("initialize-message").className = "hidden"
+	document.getElementById("previous-friends-data").className = "";
 	setText('previous-friends', cachedFriendCount);
 	document.getElementById("current-friends-data").className = "hidden";
 	document.getElementById("cache-friends").setAttribute("disabled", "true");
@@ -21,11 +29,15 @@ function initializeFriends() {
 
 
 function sendRequest() {
+	var msgData = {"initialize": false}
+	if (localStorageGet("friendCount") == 0) {
+		var msgData = {"initialize": true}
+	}
   	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 	    var tab = tabs[0];
 	    var port = chrome.tabs.connect(tabs[0].id);
 	    port.onMessage.addListener(trackFriends);
-		port.postMessage();
+		port.postMessage(msgData);
 	});
 
 }
@@ -33,13 +45,17 @@ function sendRequest() {
 function trackFriends(response) {
 	friends = response.friends;
 	friendCount = response.friendCount
-	var gainedFriends = _.difference(friends, cachedFriends);
-	var lostFriends = _.difference(cachedFriends, friends);
-	document.getElementById("current-friends-data").className = "";
-	setText('current-friends', friendCount);
-	setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
-	setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
-	document.getElementById('cache-friends').removeAttribute("disabled");
+	if (response.initialize) {
+		cacheFriends(); 
+	} else {
+		var gainedFriends = _.difference(friends, cachedFriends);
+		var lostFriends = _.difference(cachedFriends, friends);
+		document.getElementById("current-friends-data").className = "";
+		setText('current-friends', friendCount);
+		setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
+		setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
+		document.getElementById('cache-friends').removeAttribute("disabled");
+	}
 }
 
 function setText(id, text) {
@@ -50,7 +66,7 @@ function cacheFriends() {
 	if (friends.length > 0) {
 		localStorageSet("friends", friends);
 		localStorageSet("friendCount", friendCount);
-		initializeFriends();
+		retrieveCachedFriends();
 	}
 }
 
@@ -76,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	    url = url.replace("/friends", "");
 	    currentUser = url;
 	    initializeFriends();
-	  	document.getElementById('get-friends').addEventListener('click', sendRequest);
+	    document.getElementById('get-friends').addEventListener('click', function(){sendRequest()});
 	  	document.getElementById('cache-friends').addEventListener('click', cacheFriends);
 	});    
 });
