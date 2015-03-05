@@ -27,6 +27,7 @@ function trackFriends(response) {
 	friends = response.friends;
 	var gainedFriends = _.difference(friends, cachedFriends);
 	var lostFriends = _.difference(cachedFriends, friends);
+	document.getElementById("current-friends-data").className = "";
 	setText('current-friends', friends.length);
 	setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
 	setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
