@@ -8,6 +8,12 @@ function scrapeFriends() {
 	return friends;
 }
 
+// not all friends are displayed in friends list depending on privacy settings
+// the count listed at the top is more accurate than getting friend array length
+function scrapeFriendCount() {
+	return $("a[href$='friends_all'] span._3d0").text();
+}
+
 function getAllFriends(callback) {
 	var inProgressText = "Don't touch anything or navigate away, Friend Tracker is busy at work right now!";
 	$("body").prepend($("<div id='in-progress-warning'>" + inProgressText + "</div>"));
@@ -23,7 +29,8 @@ function getAllFriends(callback) {
 			clearInterval(loop);
 			$('#in-progress-warning').remove();
 			$('#in-progress-cover').remove();
-			callback(friends);
+			var friendCount = scrapeFriendCount();
+			callback({friends: friends, friendCount: friendCount});
 		}
 	},1000);
 	
@@ -31,8 +38,8 @@ function getAllFriends(callback) {
 
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
-  	getAllFriends(function (friends) {
-  		port.postMessage({friends: friends});
+  	getAllFriends(function (friendData) {
+  		port.postMessage(friendData);
   	});
   });
 });

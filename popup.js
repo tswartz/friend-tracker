@@ -1,15 +1,18 @@
-
 var cachedFriends;
 var friends;
+var friendCount;
 
 function initializeFriends() {
-	if (!localStorage.getItem("friends")) {
+	if (!localStorage.getItem("friends") && !localStorage.getItem("friendCount")) {
 		localStorage.setItem("friends", []);
+		localStorage.setItem("friendCount", 0);
 	}
 	cachedFriends = localStorage.getItem("friends").split(",");
-	friends = [];
+	cachedFriendCount = localStorage.getItem("friendCount");
 
-	setText('previous-friends', cachedFriends.length);	
+	setText('previous-friends', cachedFriendCount);
+	document.getElementById("current-friends-data").className = "hidden";
+	document.getElementById("cache-friends").setAttribute("disabled", "true");
 }
 
 
@@ -25,10 +28,11 @@ function sendRequest() {
 
 function trackFriends(response) {
 	friends = response.friends;
+	friendCount = response.friendCount
 	var gainedFriends = _.difference(friends, cachedFriends);
 	var lostFriends = _.difference(cachedFriends, friends);
 	document.getElementById("current-friends-data").className = "";
-	setText('current-friends', friends.length);
+	setText('current-friends', friendCount);
 	setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
 	setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
 	document.getElementById('cache-friends').removeAttribute("disabled");
@@ -41,6 +45,7 @@ function setText(id, text) {
 function cacheFriends() {
 	if (friends.length > 0) {
 		localStorage.setItem("friends", friends);
+		localStorage.setItem("friendCount", friendCount);
 		initializeFriends();
 	}
 }
