@@ -1,14 +1,18 @@
 var cachedFriends;
 var friends;
 var friendCount;
+var currentUser;
 
 function initializeFriends() {
-	if (!localStorage.getItem("friends") && !localStorage.getItem("friendCount")) {
-		localStorage.setItem("friends", []);
-		localStorage.setItem("friendCount", 0);
+	if (!localStorage.getItem(currentUser)) {
+		localStorage.setItem(currentUser, "{}");
 	}
-	cachedFriends = localStorage.getItem("friends").split(",");
-	cachedFriendCount = localStorage.getItem("friendCount");
+	if (!localStorageGet("friends") && !localStorageGet("friendCount")) {
+		localStorageSet("friends", []);
+		localStorageSet("friendCount", 0);
+	}
+	cachedFriends = localStorageGet("friends");
+	cachedFriendCount = localStorageGet("friendCount");
 
 	setText('previous-friends', cachedFriendCount);
 	document.getElementById("current-friends-data").className = "hidden";
@@ -44,14 +48,35 @@ function setText(id, text) {
 
 function cacheFriends() {
 	if (friends.length > 0) {
-		localStorage.setItem("friends", friends);
-		localStorage.setItem("friendCount", friendCount);
+		localStorageSet("friends", friends);
+		localStorageSet("friendCount", friendCount);
 		initializeFriends();
 	}
 }
 
+function localStorageGet(property) {
+	var friendDataString = localStorage.getItem(currentUser);
+	var friendData = JSON.parse(friendDataString);
+	return friendData[property];
+}
+
+function localStorageSet(property, value) {
+	var friendDataString = localStorage.getItem(currentUser);
+	var friendData = JSON.parse(friendDataString);
+	friendData[property] = value;
+	friendDataString = JSON.stringify(friendData);
+	return localStorage.setItem(currentUser, friendDataString);
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
-	initializeFriends();
-  	document.getElementById('get-friends').addEventListener('click', sendRequest);
-  	document.getElementById('cache-friends').addEventListener('click', cacheFriends);
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+	    var url = tabs[0].url;
+	    url = url.replace("https://www.facebook.com/", "");
+	    url = url.replace("/friends", "");
+	    currentUser = url;
+	    initializeFriends();
+	  	document.getElementById('get-friends').addEventListener('click', sendRequest);
+	  	document.getElementById('cache-friends').addEventListener('click', cacheFriends);
+	});    
 });
