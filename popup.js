@@ -5,8 +5,8 @@ var currentUser;
 
 function initializeFriends() {
 	if (!localStorage.getItem(currentUser)) {
-		document.getElementById("previous-friends-data").className = "hidden";
-		document.getElementById("current-friends-data").className = "hidden";
+		hide("previous-friends-data");
+		hide("current-friends-data");
 		document.getElementById("cache-friends").setAttribute("disabled", "true");
 		var friendData = {friends:[], friendCount:0};
 		friendData = JSON.stringify(friendData);
@@ -20,37 +20,34 @@ function retrieveCachedFriends() {
 	cachedFriends = localStorageGet("friends");
 	var cachedFriendCount = localStorageGet("friendCount");
 
-	document.getElementById("initialize-message").className = "hidden"
-	document.getElementById("previous-friends-data").className = "";
+	hide("initialize-message");
+	show("previous-friends-data");
 	setText('previous-friends', cachedFriendCount);
-	document.getElementById("current-friends-data").className = "hidden";
+	hide("current-friends-data");
 	document.getElementById("cache-friends").setAttribute("disabled", "true");
 }
 
 
 function sendRequest() {
-	var msgData = {"initialize": false}
-	if (localStorageGet("friendCount") == 0) {
-		var msgData = {"initialize": true}
-	}
   	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 	    var tab = tabs[0];
 	    var port = chrome.tabs.connect(tabs[0].id);
 	    port.onMessage.addListener(trackFriends);
-		port.postMessage(msgData);
+		port.postMessage({});
 	});
 
 }
 
 function trackFriends(response) {
+	var initialFriendScrape = localStorageGet("friendCount") == 0;
 	friends = response.friends;
 	friendCount = response.friendCount
-	if (response.initialize) {
+	if (initialFriendScrape) {
 		cacheFriends(); 
 	} else {
 		var gainedFriends = _.difference(friends, cachedFriends);
 		var lostFriends = _.difference(cachedFriends, friends);
-		document.getElementById("current-friends-data").className = "";
+		show("current-friends-data");
 		setText('current-friends', friendCount);
 		setText('gained-friends', "(" + gainedFriends.length + ") " + gainedFriends);
 		setText('lost-friends', "(" + lostFriends.length + ") " + lostFriends);
@@ -84,24 +81,37 @@ function localStorageSet(property, value) {
 	return localStorage.setItem(currentUser, friendDataString);
 }
 
-function testValidUrl(url) {
+function isValidUrl(url) {
 	var re = "^https://www.facebook.com/[^/]*/friends$";
 	return url.match(re);
 }
 
+function setCurrentUser(url) {
+	url = url.replace("https://www.facebook.com/", "");
+    url = url.replace("/friends", "");
+    currentUser = url;
+}
+
+function show(id) {
+	document.getElementById(id).className = "";
+}
+
+function hide(id) {
+	document.getElementById(id).className = "hidden";
+}
+
+// Set everything up after loading DOM
 document.addEventListener('DOMContentLoaded', function() {
+	document.getElementById('get-friends').addEventListener('click', function(){sendRequest()});
+  	document.getElementById('cache-friends').addEventListener('click', cacheFriends);
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 	    var url = tabs[0].url;
-	    if (!testValidUrl(url)) {
-	    	document.getElementById("friend-tracker-ui").className = "hidden";
+	    if (!isValidUrl(url)) {
+	    	hide("friend-tracker-ui");
 	    	return;
 	    }
-	    document.getElementById("wrong-url-message").className = "hidden";
-	    url = url.replace("https://www.facebook.com/", "");
-	    url = url.replace("/friends", "");
-	    currentUser = url;
+	    hide("wrong-url-message");
+	    setCurrentUser(url);
 	    initializeFriends();
-	    document.getElementById('get-friends').addEventListener('click', function(){sendRequest()});
-	  	document.getElementById('cache-friends').addEventListener('click', cacheFriends);
 	});    
 });

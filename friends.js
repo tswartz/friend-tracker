@@ -14,24 +14,32 @@ function scrapeFriendCount() {
 	return $("a[href$='friends_all'] span._3d0").text();
 }
 
-function getAllFriends(callback) {
+function addLoadingCover() {
 	var inProgressText = "Don't touch anything or navigate away, Friend Tracker is busy at work right now!";
 	$("body").prepend($("<div id='in-progress-warning'>" + inProgressText + "</div>"));
 	$("body").prepend($("<div id='in-progress-cover'/>"));
+}
+
+function removeLoadingCover() {
+	$('#in-progress-warning').remove();
+	$('#in-progress-cover').remove();
+}
+
+function getAllFriends(callback) {
+	addLoadingCover()
 	var screenHeight = $(window).height();
 	var friends = [];
 	var loop = setInterval(function () {
-		scrollTo(0,screenHeight);
 		friends = scrapeFriends();
-		screenHeight += screenHeight;
-		moreAboutHeader = $("h3.uiHeaderTitle:contains('More About ')");
+		var moreAboutHeader = $("h3.uiHeaderTitle:contains('More About ')");
 		if (moreAboutHeader.length > 0) {
 			clearInterval(loop);
-			$('#in-progress-warning').remove();
-			$('#in-progress-cover').remove();
+			removeLoadingCover();
 			var friendCount = scrapeFriendCount();
 			callback({friends: friends, friendCount: friendCount});
 		}
+		screenHeight += screenHeight;
+		scrollTo(0,screenHeight);
 	},1000);
 	
 }
@@ -39,7 +47,6 @@ function getAllFriends(callback) {
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
   	getAllFriends(function (friendData) {
-  		friendData.initialize = msg.initialize;
   		port.postMessage(friendData);
   	});
   });
