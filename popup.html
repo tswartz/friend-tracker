@@ -7,28 +7,31 @@
 	    <script type="text/javascript" src="popup.js"></script>
 	</head>
 	<body>
-		<div id="initialize-message">
-			<span>Hit "get friends" to initialize your friend count!</span>
-		</div>
-		<div id="previous-friends-data">
-			<span>Previously counted friends: </span>
-			<span id="previous-friends"></span>
-		</div>
-		<div id="current-friends-data">
-			<div>
-				<span>Current friends: </span>
-				<span id="current-friends"></span>
+		<span id="wrong-url-message">WTF this isn't your friends page.</span>
+		<div id="friend-tracker-ui">
+			<div id="initialize-message">
+				<span>Hit "get friends" to initialize your friend count!</span>
 			</div>
-			<div>
-				<span>Gained Friends:</span>
-				<span id="gained-friends"></span>
+			<div id="previous-friends-data">
+				<span>Previously counted friends: </span>
+				<span id="previous-friends"></span>
 			</div>
-			<div>
-				<span>Lost Friends:</span>
-				<span id="lost-friends"></span>
+			<div id="current-friends-data">
+				<div>
+					<span>Current friends: </span>
+					<span id="current-friends"></span>
+				</div>
+				<div>
+					<span>Gained Friends:</span>
+					<span id="gained-friends"></span>
+				</div>
+				<div>
+					<span>Lost Friends:</span>
+					<span id="lost-friends"></span>
+				</div>
 			</div>
+			<button id="get-friends">Get friends</button>
+			<button id="cache-friends">Cache friends</button>
 		</div>
-		<button id="get-friends">Get friends</button>
-		<button id="cache-friends">Cache friends</button>
 	</body>
 </html>

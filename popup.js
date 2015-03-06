@@ -84,10 +84,19 @@ function localStorageSet(property, value) {
 	return localStorage.setItem(currentUser, friendDataString);
 }
 
+function testValidUrl(url) {
+	var re = "^https://www.facebook.com/[^/]*/friends$";
+	return url.match(re);
+}
 
 document.addEventListener('DOMContentLoaded', function() {
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 	    var url = tabs[0].url;
+	    if (!testValidUrl(url)) {
+	    	document.getElementById("friend-tracker-ui").className = "hidden";
+	    	return;
+	    }
+	    document.getElementById("wrong-url-message").className = "hidden";
 	    url = url.replace("https://www.facebook.com/", "");
 	    url = url.replace("/friends", "");
 	    currentUser = url;
